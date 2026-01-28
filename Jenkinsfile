@@ -52,9 +52,9 @@ pipeline {
                 '''
             }
             post {
-                always {
-                    junit 'build/test-results/test/*.xml'
-                }
+              always {
+                junit allowEmptyResults: true, testResults: '**/build/test-results/test/*.xml'
+              }
             }
         }
 
