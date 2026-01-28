@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'ap-northeast-2'
-        TARGET_INSTANCE_ID = 'i-06f03de3fe3b63428'
+        TARGET_INSTANCE_ID = 'i-083d79a0b929f2a0d'
         REGISTRY = "registry.ums.local:5000"
         APP_NAME = "auth-service"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
@@ -34,6 +34,16 @@ pipeline {
             }
         }
 
+        stage('Gradle Build') {
+            steps {
+                script {
+                    sh 'nohup aws ssm start-session --target i-00464ff35252824cb --document-name AWS-StartPortForwardingSession --parameters "portNumber=8081,localPortNumber=8081" > ~/ssm-session.log 2>&1 &'
+                    sh 'chmod +x gradlew'
+                    sh './gradlew build --refresh-dependencies'
+                }
+            }
+        }
+
         stage('Test') {
             steps {
                 sh '''
@@ -44,16 +54,6 @@ pipeline {
             post {
                 always {
                     junit 'build/test-results/test/*.xml'
-                }
-            }
-        }
-
-        stage('Gradle Build') {
-            steps {
-                script {
-                    sh 'nohup aws ssm start-session --target i-00464ff35252824cb --document-name AWS-StartPortForwardingSession --parameters "portNumber=8081,localPortNumber=8081" > ~/ssm-session.log 2>&1 &'
-                    sh 'chmod +x gradlew'
-                    sh './gradlew build --refresh-dependencies'
                 }
             }
         }
