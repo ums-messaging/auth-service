@@ -7,7 +7,7 @@ pipeline {
         REGISTRY = "registry.ums.local:5000"
         APP_NAME = "auth-service"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        GIT_BRANCH = "${env.BRANCH_NAME ?: 'master'}"
+        GIT_BRANCH = "${env.BRANCH_NAME ?: 'main'}"
         SPRING_PROFILES_ACTIVE = 'test'
         KAFKA_PORT = '9092'
     }
@@ -16,7 +16,7 @@ pipeline {
         stage('Checkout Eureka Server') {
             steps {
                  script {
-                    def branch = env.BRANCH_NAME ?: 'master'
+                    def branch = env.BRANCH_NAME ?: 'main'
                     sshagent(['git']) {
                          sh """
                             if [ ! -d .git ]; then
@@ -43,7 +43,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'build/test-results/test/*.xml'
+                    junit allowEmptyResults: true, testResults: '**/build/test-results/test/*.xml'
                 }
             }
         }
