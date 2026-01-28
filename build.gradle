@@ -17,7 +17,7 @@ apply plugin: 'io.spring.dependency-management'
 
 group = 'com.ums'
 version = '0.0.1-SNAPSHOT'
-description = 'receiver-service'
+description = 'auth-service'
 
 java {
     toolchain {
