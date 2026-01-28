@@ -102,8 +102,5 @@ pipeline {
         success {
             echo "✅ 전체 파이프라인 완료!"
         }
-        always {
-            junit allowEmptyResults: true, testResults: '**/build/test-results/test/*.xml'
-        }
     }
 }
