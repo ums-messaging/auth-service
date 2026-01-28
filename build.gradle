@@ -67,6 +67,11 @@ dependencyManagement {
     }
 }
 
+springBoot {
+    mainClass = 'com.ums.auth.AuthServiceApplication'
+}
+
+
 tasks.named('test') {
     useJUnitPlatform()
 }
