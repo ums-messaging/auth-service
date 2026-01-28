@@ -7,7 +7,7 @@ pipeline {
         REGISTRY = "registry.ums.local:5000"
         APP_NAME = "auth-service"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        GIT_BRANCH = "${env.BRANCH_NAME ?: 'main'}"
+        GIT_BRANCH = "${env.BRANCH_NAME ?: 'master'}"
         SPRING_PROFILES_ACTIVE = 'test'
         KAFKA_PORT = '9092'
     }
@@ -16,12 +16,12 @@ pipeline {
         stage('Checkout Eureka Server') {
             steps {
                  script {
-                    def branch = env.BRANCH_NAME ?: 'main'
+                    def branch = env.BRANCH_NAME ?: 'master'
                     sshagent(['git']) {
                          sh """
                             if [ ! -d .git ]; then
                                 git init
-                                git remote add origin git@github.com:ums-messaging/auth-service.git
+                                git remote add origin git@github.com:ums-messaging/template-service.git
                                 git pull origin $GIT_BRANCH
                             else
                                 git fetch origin $GIT_BRANCH
@@ -34,6 +34,20 @@ pipeline {
             }
         }
 
+        stage('Test') {
+            steps {
+                sh '''
+                    chmod +x gradlew
+                    ./gradlew clean test --info --stacktrace
+                '''
+            }
+            post {
+                always {
+                    junit 'build/test-results/test/*.xml'
+                }
+            }
+        }
+
         stage('Gradle Build') {
             steps {
                 script {
@@ -41,20 +55,6 @@ pipeline {
                     sh 'chmod +x gradlew'
                     sh './gradlew build --refresh-dependencies'
                 }
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh '''
-                    chmod +x gradlew
-                    ./gradlew clean test
-                '''
-            }
-            post {
-              always {
-                junit allowEmptyResults: true, testResults: '**/build/test-results/test/*.xml'
-              }
             }
         }
 
@@ -80,7 +80,7 @@ pipeline {
                             --comment "Deploy ${APP_NAME}" \
                             --parameters '{"commands" : [
                                "docker login ${REGISTRY} --username jang314 --password jang314",
-                               "cd /data/schedule-service",
+                               "cd /data/template-service",
                                "export HOST_IP=\$(hostname -i)",
                                "export IMAGE_TAG=${IMAGE_TAG}",
                                "docker stop ${APP_NAME} || true",
