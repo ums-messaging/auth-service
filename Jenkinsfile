@@ -21,7 +21,7 @@ pipeline {
                          sh """
                             if [ ! -d .git ]; then
                                 git init
-                                git remote add origin git@github.com:ums-messaging/template-service.git
+                                git remote add origin git@github.com:ums-messaging/auth-service.git
                                 git pull origin $GIT_BRANCH
                             else
                                 git fetch origin $GIT_BRANCH
